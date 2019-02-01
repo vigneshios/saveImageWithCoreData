@@ -11,9 +11,14 @@ import CoreData
 
 class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
+    // Outlets
     @IBOutlet weak var tblVw: UITableView!
+    @IBOutlet weak var pickedImgVw: UIImageView!
+    
+    // Variables
     var imagePicker = UIImagePickerController()
     var pictures : [NSManagedObject] = []
+    var savedImage = [UIImage]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,6 +29,31 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        
+    
+        //1
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {return}
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        //2
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "MyPhotos")
+        
+        //3
+        do {
+            pictures = try managedContext.fetch(fetchRequest)
+            
+            print("My item count == \(pictures.count) ")
+            
+            
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
+    
     func saveImageToCoreDate(image: NSData) {
         
         guard let appdelegate = UIApplication.shared.delegate as? AppDelegate else {return}
@@ -31,12 +61,13 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         let managedContext = appdelegate.persistentContainer.viewContext
         let entity = NSEntityDescription.entity(forEntityName: "MyPhotos", in: managedContext)!
         let photo = NSManagedObject(entity: entity, insertInto: managedContext)
-        photo.setValue(image, forKey: "image")
+       // photo.setValue(image, forKey: "image")
+        photo.setValue(image, forKeyPath: "image")
         
         do {
             try managedContext.save()
             pictures.append(photo)
-            print("My item == \(pictures.count)? ")
+            print("My item count == \(pictures.count) ")
         } catch {
             debugPrint("Could not save... \(error.localizedDescription)")
         }
@@ -58,11 +89,16 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         }
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return pictures.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as? ImagesCell else {return UITableViewCell()}
+        let pic = pictures[indexPath.row] as NSManagedObject
+        let imgData: NSData = pic.value(forKey: "image") as! NSData
+       // let image : UIImage = UIImage(data: imgData, scale: 1.0)
+        
+        cell.favoriteImageView.image = UIImage(data: imgData as Data, scale: 1.0)
         return cell
     }
     
@@ -71,26 +107,17 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let pickedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            
+           // pickedImgVw.image = pickedImage
+            
             let imageData: NSData = pickedImage.pngData()! as NSData
+            print("My current item count == \(pictures.count)")
             saveImageToCoreDate(image: imageData)
         }
         
         picker.dismiss(animated: true, completion: nil)
     }
     
-    
-    
-    /*
-    func imagePickerController(picker: UIImagePickerController!, didFinishPickingImage image: UIImage!, editingInfo: NSDictionary!){
-        self.dismiss(animated: true, completion: { () -> Void in
-            let imageData: NSData = image.pngData() as! NSData
-            self.saveImageToCoreDate(image: imageData)
-        })
-        
-    }
-    
-    */
-   
 }
 
