@@ -72,12 +72,21 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         
         do {
             try managedContext.save()
+            DispatchQueue.main.async {
+                 self.showAlert(title: "Message", message: "Image saved to coredata", buttonTitle: "OK")
+            }
+           
             //pictures.append(photo)
             fetchResults()
             
             print("My item count == \(pictures.count) ")
+            
         } catch {
             debugPrint("Could not save... \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.showAlert(title: "Error!", message: "Image failed to save in coredata", buttonTitle: "OK")
+            }
+            
         }
         
         
@@ -119,7 +128,7 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             
-           // pickedImgVw.image = pickedImage
+            pickedImgVw.image = pickedImage
             
             let imageData: NSData = pickedImage.pngData()! as NSData
             print("My current item count == \(pictures.count)")
@@ -131,3 +140,11 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
 }
 
+extension UIViewController {
+    
+    func showAlert(title: String, message: String, buttonTitle: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: buttonTitle, style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
+}
+}
