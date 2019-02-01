@@ -29,7 +29,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="179.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icons8-medium-icons-100" translatesAutoresizingMaskIntoConstraints="NO" id="y2J-9D-N4g">
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mic_icon" translatesAutoresizingMaskIntoConstraints="NO" id="y2J-9D-N4g">
                                                     <rect key="frame" x="23" y="19" width="345" height="142"/>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 </imageView>
@@ -43,6 +43,9 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <outlet property="favoriteImageView" destination="y2J-9D-N4g" id="Zsq-mI-gQP"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
@@ -106,6 +109,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="icons8-medium-icons-100" width="100" height="100"/>
+        <image name="mic_icon" width="281" height="281"/>
     </resources>
 </document>

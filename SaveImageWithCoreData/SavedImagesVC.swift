@@ -32,9 +32,15 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        
+        fetchResults()
     
-        //1
+      
+    }
+    
+    func fetchResults() {
+       
+        pictures.removeAll()
+        
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {return}
         
         let managedContext = appDelegate.persistentContainer.viewContext
@@ -47,7 +53,7 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
             pictures = try managedContext.fetch(fetchRequest)
             
             print("My item count == \(pictures.count) ")
-            
+            tblVw.reloadData()
             
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
@@ -66,7 +72,9 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
         
         do {
             try managedContext.save()
-            pictures.append(photo)
+            //pictures.append(photo)
+            fetchResults()
+            
             print("My item count == \(pictures.count) ")
         } catch {
             debugPrint("Could not save... \(error.localizedDescription)")
@@ -79,8 +87,6 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
-            print("Button capture")
-            
             imagePicker.delegate = self
             imagePicker.sourceType = .savedPhotosAlbum;
             imagePicker.allowsEditing = false
@@ -95,10 +101,14 @@ class SavedImagesVC: UIViewController, UITableViewDataSource, UITableViewDelegat
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as? ImagesCell else {return UITableViewCell()}
         let pic = pictures[indexPath.row] as NSManagedObject
-        let imgData: NSData = pic.value(forKey: "image") as! NSData
+        let imgData: Data = pic.value(forKey: "image") as! Data
        // let image : UIImage = UIImage(data: imgData, scale: 1.0)
         
-        cell.favoriteImageView.image = UIImage(data: imgData as Data, scale: 1.0)
+        if let imageUrl = UIImage(data: imgData) {
+            cell.favoriteImageView.image = imageUrl
+        }
+        
+        //cell.favoriteImageView.image = UIImage(data: imgData as Data, scale: 1.0)
         return cell
     }
     
